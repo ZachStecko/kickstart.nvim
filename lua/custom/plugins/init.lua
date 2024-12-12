@@ -7,6 +7,10 @@
   - lazy git
   ]]
 
+-- Keybindings for ToggleTerm
+vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>tb', '<cmd>ToggleTerm direction=horizontal size=20<CR>', { noremap = true, silent = true })
+
 return {
   -- nvim-web-devicons for file icons
   {
@@ -42,25 +46,16 @@ return {
     opts = {
       -- Keybindings
       open_mapping = '<leader>t', -- Map leader key + 't' to open a terminal
-      size = 20, -- Set the initial terminal size
-      hide_numbers = true, -- Hide the terminal numbers
-      shade_terminals = true, -- Shade the terminals
+      size = 20, -- Default terminal size
+      hide_numbers = true, -- Hide terminal line numbers
+      shade_terminals = true, -- Shade the terminal background
       start_in_insert = true, -- Start the terminal in insert mode
       insert_mappings = true, -- Enable insert mode mappings
       persist_mode = true, -- Persist the terminal mode
-      shell_command = 'term', -- Set the shell command to use
+      shell = vim.o.shell, -- Use the default shell
 
-      -- Vertical split settings
-      vertical = {
-        size = 30, -- Set the vertical split size
-        orientation = 'right', -- Set the orientation to right
-      },
-
-      -- Horizontal split settings
-      horizontal = {
-        size = 30, -- Set the horizontal split size
-        orientation = 'bottom', -- Set the orientation to bottom
-      },
+      -- Default terminal direction
+      direction = 'float', -- Default direction can be 'horizontal', 'vertical', 'float', or 'tab'
     },
   },
   {

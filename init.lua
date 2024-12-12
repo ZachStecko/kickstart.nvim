@@ -967,5 +967,4 @@ require('lazy').setup({
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 eot
--- vim.o.laststatus = 3
+-- vim: ts=2 sts=2 sw=2 et

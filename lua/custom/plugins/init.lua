@@ -11,12 +11,6 @@
 vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>tb', '<cmd>ToggleTerm direction=horizontal size=20<CR>', { noremap = true, silent = true })
 
--- Enter insert mode when opening a file
-vim.api.nvim_create_autocmd('BufReadPost', {
-  pattern = '*',
-  command = 'startinsert',
-})
-
 -- Auto-open NvimTree when opening Neovim
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()

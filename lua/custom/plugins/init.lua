@@ -10,7 +10,12 @@
 -- Keybindings for ToggleTerm
 vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>tb', '<cmd>ToggleTerm direction=horizontal size=20<CR>', { noremap = true, silent = true })
---Lua:
+
+-- Enter insert mode when opening a file
+vim.api.nvim_create_autocmd('BufReadPost', {
+  pattern = '*',
+  command = 'startinsert',
+})
 
 -- Plugin configuration for lazy.nvim
 return {

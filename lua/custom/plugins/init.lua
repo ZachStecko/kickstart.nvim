@@ -135,8 +135,39 @@ return {
 
       -- Keybindings for navigating buffers
       vim.keymap.set('n', '<leader>bn', '<cmd>BufferLineCycleNext<CR>', { desc = 'Next Buffer' })
-      vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineCyclePrev<CR>', { desc = 'Previous Buffer' })
+      vim.keymap.set('n', '<leader>bv', '<cmd>BufferLineCyclePrev<CR>', { desc = 'Previous Buffer' })
       vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close Buffer' })
+    end,
+  },
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim', -- UI Component Library
+      'rcarriga/nvim-notify', -- Optional: Notification component
+      'nvim-treesitter/nvim-treesitter', -- Optional: For better syntax highlighting in messages
+    },
+    config = function()
+      require('noice').setup {
+        cmdline = {
+          enabled = true, -- Enable the command line UI replacement
+          view = 'cmdline_popup', -- Use a popup for the command line
+          format = {
+            cmdline = { icon = '' }, -- Icon before the command line
+          },
+        },
+        popupmenu = {
+          enabled = true, -- Enable popup menu for command completions
+        },
+        messages = {
+          enabled = true, -- Enable message UI replacement
+        },
+        presets = {
+          bottom_search = false, -- Disable bottom search prompt
+          command_palette = true, -- Center the command line
+          long_message_to_split = true,
+        },
+      }
     end,
   },
 }

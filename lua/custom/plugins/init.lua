@@ -105,4 +105,38 @@ return {
       vim.cmd.colorscheme 'material'
     end,
   },
+  -- Bufferline for file tabs
+  {
+    'akinsho/bufferline.nvim',
+    version = '*',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('bufferline').setup {
+        options = {
+          numbers = 'buffer_id',
+          diagnostics = 'nvim_lsp',
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = true,
+          separator_style = 'slant',
+          always_show_bufferline = true,
+          -- Add an offset for NvimTree
+          offsets = {
+            {
+              filetype = 'NvimTree',
+              text = 'File Explorer',
+              highlight = 'Directory',
+              text_align = 'left', -- Aligns the label to the left
+              separator = true, -- Adds a separator between NvimTree and bufferline
+            },
+          },
+        },
+      }
+
+      -- Keybindings for navigating buffers
+      vim.keymap.set('n', '<leader>bn', '<cmd>BufferLineCycleNext<CR>', { desc = 'Next Buffer' })
+      vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineCyclePrev<CR>', { desc = 'Previous Buffer' })
+      vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close Buffer' })
+    end,
+  },
 }

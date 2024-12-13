@@ -1,15 +1,4 @@
---[[
-  Plugin checklist
-  - icons
-  - file explorer
-  - terminal
-  - harpoon
-  - lazy git
-  ]]
-
--- Keybindings for ToggleTerm
-vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true })
-vim.keymap.set('n', '<leader>tb', '<cmd>ToggleTerm direction=horizontal size=20<CR>', { noremap = true, silent = true })
+-- 🐣
 
 -- Auto-open NvimTree when opening Neovim
 vim.api.nvim_create_autocmd('VimEnter', {
@@ -45,21 +34,9 @@ return {
   },
 
   -- toggleterm for terminal management
-  -- toggleterm for terminal management
   {
     'akinsho/toggleterm.nvim',
     version = '*',
-    opts = {
-      open_mapping = '<leader>t',
-      size = 20,
-      hide_numbers = true,
-      shade_terminals = true,
-      start_in_insert = true,
-      insert_mappings = true,
-      persist_mode = true,
-      shell = vim.o.shell,
-      direction = 'float',
-    },
     config = function()
       require('toggleterm').setup {
         open_mapping = '<leader>t',
@@ -71,6 +48,9 @@ return {
         persist_mode = true,
         shell = vim.o.shell,
         direction = 'float',
+        float_opts = {
+          border = 'curved',
+        },
       }
 
       -- Enter insert mode when clicking into a terminal window
@@ -83,13 +63,20 @@ return {
 
       -- Map <Esc> to enter normal mode in terminal buffers
       vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
+
+      -- Additional keybindings for opening terminals
+      vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true, desc = 'Open vertical terminal' })
+      vim.keymap.set(
+        'n',
+        '<leader>tb',
+        '<cmd>ToggleTerm direction=horizontal size=20<CR>',
+        { noremap = true, silent = true, desc = 'Open horizontal terminal' }
+      )
     end,
   },
 
   -- plenary for utility functions
-  {
-    'nvim-lua/plenary.nvim',
-  },
+  { 'nvim-lua/plenary.nvim' },
 
   -- lazygit integration
   {
@@ -104,7 +91,7 @@ return {
     },
     dependencies = { 'nvim-lua/plenary.nvim' },
     keys = {
-      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'Open LazyGit' },
     },
   },
 
@@ -137,7 +124,8 @@ return {
       vim.cmd.colorscheme 'material'
     end,
   },
-  -- Bufferline for file tabs
+
+  -- bufferline for file tabs
   {
     'akinsho/bufferline.nvim',
     version = '*',
@@ -152,14 +140,13 @@ return {
           show_close_icon = true,
           separator_style = 'slant',
           always_show_bufferline = true,
-          -- Add an offset for NvimTree
           offsets = {
             {
               filetype = 'NvimTree',
               text = 'File Explorer',
               highlight = 'Directory',
-              text_align = 'left', -- Aligns the label to the left
-              separator = true, -- Adds a separator between NvimTree and bufferline
+              text_align = 'left',
+              separator = true,
             },
           },
         },
@@ -171,32 +158,34 @@ return {
       vim.keymap.set('n', '<leader>bd', '<cmd>bd<CR>', { desc = 'Close Buffer' })
     end,
   },
+
+  -- noice for enhanced notifications
   {
     'folke/noice.nvim',
     event = 'VeryLazy',
     dependencies = {
-      'MunifTanjim/nui.nvim', -- UI Component Library
-      'rcarriga/nvim-notify', -- Optional: Notification component
-      'nvim-treesitter/nvim-treesitter', -- Optional: For better syntax highlighting in messages
+      'MunifTanjim/nui.nvim',
+      'rcarriga/nvim-notify',
+      'nvim-treesitter/nvim-treesitter',
     },
     config = function()
       require('noice').setup {
         cmdline = {
-          enabled = true, -- Enable the command line UI replacement
-          view = 'cmdline_popup', -- Use a popup for the command line
+          enabled = true,
+          view = 'cmdline_popup',
           format = {
-            cmdline = { icon = '' }, -- Icon before the command line
+            cmdline = { icon = '' },
           },
         },
         popupmenu = {
-          enabled = true, -- Enable popup menu for command completions
+          enabled = true,
         },
         messages = {
-          enabled = true, -- Enable message UI replacement
+          enabled = true,
         },
         presets = {
-          bottom_search = false, -- Disable bottom search prompt
-          command_palette = true, -- Center the command line
+          bottom_search = false,
+          command_palette = true,
           long_message_to_split = true,
         },
       }

@@ -17,6 +17,13 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   command = 'startinsert',
 })
 
+-- Auto-open NvimTree when opening Neovim
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    require('nvim-tree.api').tree.open()
+  end,
+})
+
 -- Plugin configuration for lazy.nvim
 return {
   -- nvim-web-devicons for file icons

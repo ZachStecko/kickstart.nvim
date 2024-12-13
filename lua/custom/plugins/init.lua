@@ -10,7 +10,9 @@
 -- Keybindings for ToggleTerm
 vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>tb', '<cmd>ToggleTerm direction=horizontal size=20<CR>', { noremap = true, silent = true })
+--Lua:
 
+-- Plugin configuration for lazy.nvim
 return {
   -- nvim-web-devicons for file icons
   {
@@ -35,32 +37,30 @@ return {
       vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle File Explorer' })
     end,
   },
-  -- { 'akinsho/toggleterm.nvim', version = '*', config = true },
-  -- or
-  --{'akinsho/toggleterm.nvim', version = "*", opts = {--[[ things you want to change go here]]}}
-  -- harpoon
-  -- terminal
+
+  -- toggleterm for terminal management
   {
     'akinsho/toggleterm.nvim',
     version = '*',
     opts = {
-      -- Keybindings
-      open_mapping = '<leader>t', -- Map leader key + 't' to open a terminal
-      size = 20, -- Default terminal size
-      hide_numbers = true, -- Hide terminal line numbers
-      shade_terminals = true, -- Shade the terminal background
-      start_in_insert = true, -- Start the terminal in insert mode
-      insert_mappings = true, -- Enable insert mode mappings
-      persist_mode = true, -- Persist the terminal mode
-      shell = vim.o.shell, -- Use the default shell
-
-      -- Default terminal direction
-      direction = 'float', -- Default direction can be 'horizontal', 'vertical', 'float', or 'tab'
+      open_mapping = '<leader>t',
+      size = 20,
+      hide_numbers = true,
+      shade_terminals = true,
+      start_in_insert = true,
+      insert_mappings = true,
+      persist_mode = true,
+      shell = vim.o.shell,
+      direction = 'float',
     },
   },
+
+  -- plenary for utility functions
   {
     'nvim-lua/plenary.nvim',
   },
+
+  -- lazygit integration
   {
     'kdheepak/lazygit.nvim',
     lazy = true,
@@ -71,16 +71,13 @@ return {
       'LazyGitFilter',
       'LazyGitFilterCurrentFile',
     },
-    -- optional for floating window border decoration
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-    },
-    -- setting the keybinding for LazyGit with 'keys' is recommended in
-    -- order to load the plugin when the command is run for the first time
+    dependencies = { 'nvim-lua/plenary.nvim' },
     keys = {
       { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
     },
   },
+
+  -- lualine statusline
   {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -91,41 +88,21 @@ return {
           theme = 'auto',
           component_separators = { left = '', right = '' },
           section_separators = { left = '', right = '' },
-          disabled_filetypes = {
-            statusline = {},
-            winbar = {},
-          },
-          ignore_focus = {},
-          always_divide_middle = true,
-          always_show_tabline = true,
-          globalstatus = false,
-          refresh = {
-            statusline = 100,
-            tabline = 100,
-            winbar = 100,
-          },
         },
-        sections = {
-          lualine_a = { 'mode' },
-          lualine_b = { 'branch', 'diff', 'diagnostics' },
-          lualine_c = { 'filename' },
-          lualine_x = { 'encoding', 'fileformat', 'filetype' },
-          lualine_y = { 'progress' },
-          lualine_z = { 'location' },
-        },
-        inactive_sections = {
-          lualine_a = {},
-          lualine_b = {},
-          lualine_c = { 'filename' },
-          lualine_x = { 'location' },
-          lualine_y = {},
-          lualine_z = {},
-        },
-        tabline = {},
-        winbar = {},
-        inactive_winbar = {},
-        extensions = {},
       }
+    end,
+  },
+
+  -- material.nvim theme
+  {
+    'marko-cerovac/material.nvim',
+    priority = 1000, -- Load the theme early
+    config = function()
+      -- Set the material theme style
+      vim.g.material_style = 'deep ocean' -- Options: "darker", "lighter", "palenight", "deep ocean"
+
+      -- Load the colorscheme
+      vim.cmd.colorscheme 'material'
     end,
   },
 }

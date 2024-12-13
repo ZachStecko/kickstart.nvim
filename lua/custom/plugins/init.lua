@@ -45,6 +45,7 @@ return {
   },
 
   -- toggleterm for terminal management
+  -- toggleterm for terminal management
   {
     'akinsho/toggleterm.nvim',
     version = '*',
@@ -59,6 +60,30 @@ return {
       shell = vim.o.shell,
       direction = 'float',
     },
+    config = function()
+      require('toggleterm').setup {
+        open_mapping = '<leader>t',
+        size = 20,
+        hide_numbers = true,
+        shade_terminals = true,
+        start_in_insert = true,
+        insert_mappings = true,
+        persist_mode = true,
+        shell = vim.o.shell,
+        direction = 'float',
+      }
+
+      -- Enter insert mode when clicking into a terminal window
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'WinEnter' }, {
+        pattern = 'term://*',
+        callback = function()
+          vim.cmd 'startinsert'
+        end,
+      })
+
+      -- Map <Esc> to enter normal mode in terminal buffers
+      vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
+    end,
   },
 
   -- plenary for utility functions
@@ -94,6 +119,7 @@ return {
           theme = 'auto',
           component_separators = { left = '', right = '' },
           section_separators = { left = '', right = '' },
+          globalstatus = true,
         },
       }
     end,

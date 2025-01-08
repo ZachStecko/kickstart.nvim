@@ -44,7 +44,7 @@ return {
         hide_numbers = true,
         shade_terminals = true,
         start_in_insert = true,
-        insert_mappings = true,
+        insert_mappings = false, -- Changed this to false to prevent insert mode triggering
         persist_mode = true,
         shell = vim.o.shell,
         direction = 'float',
@@ -52,7 +52,6 @@ return {
           border = 'curved',
         },
       }
-
       -- Enter insert mode when clicking into a terminal window
       vim.api.nvim_create_autocmd({ 'BufEnter', 'WinEnter' }, {
         pattern = 'term://*',
@@ -60,10 +59,8 @@ return {
           vim.cmd 'startinsert'
         end,
       })
-
       -- Map <Esc> to enter normal mode in terminal buffers
       vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
-
       -- Additional keybindings for opening terminals
       vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm direction=vertical size=50<CR>', { noremap = true, silent = true, desc = 'Open vertical terminal' })
       vim.keymap.set(
@@ -191,6 +188,6 @@ return {
       }
     end,
   },
-  { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
-  { 'EdenEast/nightfox.nvim', priority = 1000 },
+  { 'catppuccin/nvim', name = 'catppuccin' },
+  { 'EdenEast/nightfox.nvim' },
 }

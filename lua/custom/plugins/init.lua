@@ -274,10 +274,29 @@ return {
       dependencies = { 'nvim-lua/plenary.nvim' },
       config = function()
         local null_ls = require 'null-ls'
+
         null_ls.setup {
           sources = {
-            null_ls.builtins.formatting.prettier,
-            null_ls.builtins.diagnostics.eslint,
+            null_ls.builtins.diagnostics.eslint.with {
+              command = 'eslint', -- Use global ESLint as default
+              condition = function(utils)
+                -- Check if a project-specific ESLint config exists
+                return utils.root_has_file '.eslintrc.js'
+                  or utils.root_has_file '.eslintrc.json'
+                  or utils.root_has_file '.eslintrc.yml'
+                  or utils.root_has_file '.eslintrc'
+              end,
+            },
+            null_ls.builtins.formatting.eslint.with {
+              command = 'eslint', -- Use ESLint for formatting (optional)
+              condition = function(utils)
+                -- Same condition to use project-specific ESLint
+                return utils.root_has_file '.eslintrc.js'
+                  or utils.root_has_file '.eslintrc.json'
+                  or utils.root_has_file '.eslintrc.yml'
+                  or utils.root_has_file '.eslintrc'
+              end,
+            },
           },
         }
       end,

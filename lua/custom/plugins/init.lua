@@ -24,7 +24,28 @@ return {
     config = function()
       require('nvim-tree').setup {
         view = {
-          width = 30,
+          width = 30, -- Fixed width for the tree
+          side = 'left', -- Tree remains on the left side
+          preserve_window_proportions = true, -- Prevent resizing of NvimTree
+        },
+        actions = {
+          change_dir = {
+            restrict_above_cwd = true,
+          },
+          open_file = {
+            quit_on_open = false, -- Keep the tree open after opening a file
+            resize_window = false, -- Prevent resizing when opening a file
+            window_picker = {
+              enable = true,
+              exclude = {
+                filetype = { 'terminal', 'toggleterm' }, -- Exclude terminal windows
+                buftype = { 'terminal' },
+              },
+            },
+          },
+        },
+        renderer = {
+          highlight_opened_files = 'name', -- Optional: Highlight opened file in the tree
         },
       }
 

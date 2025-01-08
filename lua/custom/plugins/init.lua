@@ -190,4 +190,100 @@ return {
   },
   { 'catppuccin/nvim', name = 'catppuccin' },
   { 'EdenEast/nightfox.nvim' },
+  {
+    {
+      'neovim/nvim-lspconfig',
+      config = function()
+        local lspconfig = require 'lspconfig'
+        lspconfig.ts_ls.setup {
+          on_attach = function(client, bufnr)
+            local bufopts = { noremap = true, silent = true, buffer = bufnr }
+            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+            vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+          end,
+          capabilities = require('cmp_nvim_lsp').default_capabilities(),
+        }
+      end,
+    },
+    {
+      'hrsh7th/nvim-cmp',
+      dependencies = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-cmdline',
+        'saadparwaiz1/cmp_luasnip',
+      },
+      config = function()
+        local cmp = require 'cmp'
+        cmp.setup {
+          snippet = {
+            expand = function(args)
+              require('luasnip').lsp_expand(args.body)
+            end,
+          },
+          mapping = cmp.mapping.preset.insert {
+            ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+            ['<C-f>'] = cmp.mapping.scroll_docs(4),
+            ['<C-Space>'] = cmp.mapping.complete(),
+            ['<C-e>'] = cmp.mapping.abort(),
+            ['<CR>'] = cmp.mapping.confirm { select = true },
+          },
+          sources = cmp.config.sources {
+            { name = 'nvim_lsp' },
+            { name = 'luasnip' },
+            { name = 'buffer' },
+            { name = 'path' },
+          },
+        }
+      end,
+    },
+    {
+      'nvim-treesitter/nvim-treesitter',
+      run = ':TSUpdate',
+      config = function()
+        require('nvim-treesitter.configs').setup {
+          ensure_installed = { 'typescript', 'tsx', 'javascript', 'json' },
+          highlight = { enable = true },
+        }
+      end,
+    },
+    {
+      'jose-elias-alvarez/null-ls.nvim',
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        local null_ls = require 'null-ls'
+        null_ls.setup {
+          sources = {
+            null_ls.builtins.formatting.prettier,
+            null_ls.builtins.diagnostics.eslint,
+          },
+        }
+      end,
+    },
+    {
+      'mfussenegger/nvim-dap',
+      config = function()
+        local dap = require 'dap'
+        dap.configurations.typescript = {
+          {
+            type = 'node2',
+            request = 'launch',
+            program = '${workspaceFolder}/src/index.ts',
+            cwd = vim.fn.getcwd(),
+            sourceMaps = true,
+            protocol = 'inspector',
+            console = 'integratedTerminal',
+          },
+        }
+      end,
+    },
+    {
+      'rcarriga/nvim-dap-ui',
+      dependencies = { 'mfussenegger/nvim-dap' },
+      config = function()
+        require('dapui').setup()
+      end,
+    },
+  },
 }

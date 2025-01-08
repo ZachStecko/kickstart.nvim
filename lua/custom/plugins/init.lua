@@ -201,11 +201,19 @@ return {
         messages = {
           enabled = true,
         },
+        notify = {
+          enabled = true, -- Ensure notifications use the notify backend
+        },
         presets = {
           bottom_search = false,
           command_palette = true,
           long_message_to_split = true,
         },
+      }
+
+      -- Configure nvim-notify to set notification timeout
+      require('notify').setup {
+        timeout = 500, -- Set the notification duration to 2 seconds
       }
     end,
   },

@@ -7,6 +7,9 @@ vim.api.nvim_create_autocmd('VimEnter', {
   end,
 })
 
+-- Change the file search shortcut from '<leader>sf' to '<C-p>'
+vim.keymap.set('n', '<C-p>', require('telescope.builtin').find_files, { desc = '[C-p] Find Files' })
+
 -- Plugin configuration for lazy.nvim
 return {
   -- nvim-web-devicons for file icons
@@ -220,118 +223,182 @@ return {
   { 'catppuccin/nvim', name = 'catppuccin' },
   { 'EdenEast/nightfox.nvim' },
   {
-    {
-      'neovim/nvim-lspconfig',
-      config = function()
-        local lspconfig = require 'lspconfig'
-        lspconfig.ts_ls.setup {
-          on_attach = function(client, bufnr)
-            local bufopts = { noremap = true, silent = true, buffer = bufnr }
-            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-            vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-          end,
-          capabilities = require('cmp_nvim_lsp').default_capabilities(),
-        }
-      end,
+    'neovim/nvim-lspconfig',
+    config = function()
+      -- Configure diagnostic signs
+      local signs = {
+        { name = 'DiagnosticSignError', text = '' },
+        { name = 'DiagnosticSignWarn', text = '' },
+        { name = 'DiagnosticSignHint', text = '' },
+        { name = 'DiagnosticSignInfo', text = '' },
+      }
+
+      for _, sign in ipairs(signs) do
+        vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = '' })
+      end
+
+      -- Configure diagnostic display
+      vim.diagnostic.config {
+        virtual_text = {
+          prefix = '●',
+          spacing = 4,
+        },
+        float = {
+          border = 'rounded',
+          source = 'always',
+          header = '',
+          prefix = '',
+        },
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+      }
+
+      local lspconfig = require 'lspconfig'
+      lspconfig.ts_ls.setup {
+        on_attach = function(client, bufnr)
+          local bufopts = { noremap = true, silent = true, buffer = bufnr }
+
+          -- Existing keymaps
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+
+          -- New diagnostic keymaps
+          vim.keymap.set('n', 'gl', vim.diagnostic.open_float, bufopts)
+          vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, bufopts)
+          vim.keymap.set('n', ']d', vim.diagnostic.goto_next, bufopts)
+          vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+
+          -- Document highlights
+          if client.server_capabilities.documentHighlightProvider then
+            vim.api.nvim_create_augroup('lsp_document_highlight', { clear = true })
+            vim.api.nvim_create_autocmd('CursorHold', {
+              group = 'lsp_document_highlight',
+              buffer = bufnr,
+              callback = vim.lsp.buf.document_highlight,
+            })
+            vim.api.nvim_create_autocmd('CursorMoved', {
+              group = 'lsp_document_highlight',
+              buffer = bufnr,
+              callback = vim.lsp.buf.clear_references,
+            })
+          end
+        end,
+        capabilities = require('cmp_nvim_lsp').default_capabilities(),
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = 'all',
+              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
+          },
+        },
+      }
+    end,
+  },
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-cmdline',
+      'saadparwaiz1/cmp_luasnip',
     },
-    {
-      'hrsh7th/nvim-cmp',
-      dependencies = {
-        'hrsh7th/cmp-nvim-lsp',
-        'hrsh7th/cmp-buffer',
-        'hrsh7th/cmp-path',
-        'hrsh7th/cmp-cmdline',
-        'saadparwaiz1/cmp_luasnip',
-      },
-      config = function()
-        local cmp = require 'cmp'
-        cmp.setup {
-          snippet = {
-            expand = function(args)
-              require('luasnip').lsp_expand(args.body)
+    config = function()
+      local cmp = require 'cmp'
+      cmp.setup {
+        snippet = {
+          expand = function(args)
+            require('luasnip').lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert {
+          ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-e>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+        },
+        sources = cmp.config.sources {
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'buffer' },
+          { name = 'path' },
+        },
+      }
+    end,
+  },
+  {
+    'nvim-treesitter/nvim-treesitter',
+    run = ':TSUpdate',
+    config = function()
+      require('nvim-treesitter.configs').setup {
+        ensure_installed = { 'typescript', 'tsx', 'javascript', 'json' },
+        highlight = { enable = true },
+      }
+    end,
+  },
+  {
+    'jose-elias-alvarez/null-ls.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      local null_ls = require 'null-ls'
+
+      null_ls.setup {
+        sources = {
+          null_ls.builtins.diagnostics.eslint.with {
+            command = 'eslint', -- Use global ESLint as default
+            condition = function(utils)
+              -- Check if a project-specific ESLint config exists
+              return utils.root_has_file '.eslintrc.js'
+                or utils.root_has_file '.eslintrc.json'
+                or utils.root_has_file '.eslintrc.yml'
+                or utils.root_has_file '.eslintrc'
             end,
           },
-          mapping = cmp.mapping.preset.insert {
-            ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-            ['<C-f>'] = cmp.mapping.scroll_docs(4),
-            ['<C-Space>'] = cmp.mapping.complete(),
-            ['<C-e>'] = cmp.mapping.abort(),
-            ['<CR>'] = cmp.mapping.confirm { select = true },
+          null_ls.builtins.formatting.eslint.with {
+            command = 'eslint', -- Use ESLint for formatting (optional)
+            condition = function(utils)
+              -- Same condition to use project-specific ESLint
+              return utils.root_has_file '.eslintrc.js'
+                or utils.root_has_file '.eslintrc.json'
+                or utils.root_has_file '.eslintrc.yml'
+                or utils.root_has_file '.eslintrc'
+            end,
           },
-          sources = cmp.config.sources {
-            { name = 'nvim_lsp' },
-            { name = 'luasnip' },
-            { name = 'buffer' },
-            { name = 'path' },
-          },
-        }
-      end,
-    },
-    {
-      'nvim-treesitter/nvim-treesitter',
-      run = ':TSUpdate',
-      config = function()
-        require('nvim-treesitter.configs').setup {
-          ensure_installed = { 'typescript', 'tsx', 'javascript', 'json' },
-          highlight = { enable = true },
-        }
-      end,
-    },
-    {
-      'jose-elias-alvarez/null-ls.nvim',
-      dependencies = { 'nvim-lua/plenary.nvim' },
-      config = function()
-        local null_ls = require 'null-ls'
-
-        null_ls.setup {
-          sources = {
-            null_ls.builtins.diagnostics.eslint.with {
-              command = 'eslint', -- Use global ESLint as default
-              condition = function(utils)
-                -- Check if a project-specific ESLint config exists
-                return utils.root_has_file '.eslintrc.js'
-                  or utils.root_has_file '.eslintrc.json'
-                  or utils.root_has_file '.eslintrc.yml'
-                  or utils.root_has_file '.eslintrc'
-              end,
-            },
-            null_ls.builtins.formatting.eslint.with {
-              command = 'eslint', -- Use ESLint for formatting (optional)
-              condition = function(utils)
-                -- Same condition to use project-specific ESLint
-                return utils.root_has_file '.eslintrc.js'
-                  or utils.root_has_file '.eslintrc.json'
-                  or utils.root_has_file '.eslintrc.yml'
-                  or utils.root_has_file '.eslintrc'
-              end,
-            },
-          },
-        }
-      end,
-    },
-    {
-      'mfussenegger/nvim-dap',
-      config = function()
-        local dap = require 'dap'
-        dap.configurations.typescript = {
-          {
-            type = 'node2',
-            request = 'launch',
-            program = '${workspaceFolder}/src/index.ts',
-            cwd = vim.fn.getcwd(),
-            sourceMaps = true,
-            protocol = 'inspector',
-            console = 'integratedTerminal',
-          },
-        }
-      end,
-    },
-    {
-      'rcarriga/nvim-dap-ui',
-      dependencies = { 'mfussenegger/nvim-dap' },
-      config = function()
-        require('dapui').setup()
-      end,
-    },
+        },
+      }
+    end,
+  },
+  {
+    'mfussenegger/nvim-dap',
+    config = function()
+      local dap = require 'dap'
+      dap.configurations.typescript = {
+        {
+          type = 'node2',
+          request = 'launch',
+          program = '${workspaceFolder}/src/index.ts',
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+        },
+      }
+    end,
+  },
+  {
+    'rcarriga/nvim-dap-ui',
+    dependencies = { 'mfussenegger/nvim-dap' },
+    config = function()
+      require('dapui').setup()
+    end,
   },
 }
